@@ -3,179 +3,183 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Таймер Помодоро</title>
+<title>Задачи с наградами</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
   body {
-    margin: 0; 
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    font-family: 'Montserrat', sans-serif;
+    margin: 0; padding: 0;
+    display: flex; justify-content: center; align-items: center;
     height: 100vh;
-    display: flex; 
-    justify-content: center; 
-    align-items: center;
-    background: linear-gradient(135deg, #ff6a00, #ee0979);
-    font-family: 'Poppins', sans-serif;
     color: #fff;
   }
-  .timer-container {
+  .app {
     background: rgba(255 255 255 / 0.15);
-    padding: 40px 60px;
-    border-radius: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    text-align: center;
-    width: 320px;
+    border-radius: 25px;
+    padding: 30px 40px;
+    width: 350px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
     user-select: none;
   }
   h1 {
-    margin-bottom: 20px;
+    text-align: center;
+    margin-bottom: 25px;
     font-weight: 700;
-    letter-spacing: 2px;
-    font-size: 2rem;
+    letter-spacing: 1.5px;
   }
-  #sessionType {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: #ffd700;
-  }
-  #time {
-    font-size: 5rem;
-    font-weight: 700;
-    margin-bottom: 40px;
-    letter-spacing: 4px;
-  }
-  .buttons {
+  form {
     display: flex;
-    justify-content: center;
-    gap: 20px;
+    margin-bottom: 20px;
   }
-  button {
-    background: #ffd700;
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 15px;
+    border-radius: 12px 0 0 12px;
     border: none;
-    border-radius: 15px;
-    padding: 15px 30px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: #3a3a3a;
-    cursor: pointer;
-    box-shadow: 0 6px 15px rgba(255, 215, 0, 0.6);
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-  button:hover {
-    background: #ffea33;
-    transform: translateY(-3px);
-  }
-  button:active {
-    transform: translateY(0);
-  }
-  button:focus {
+    font-size: 1rem;
     outline: none;
-    box-shadow: 0 0 0 3px #fff;
   }
-  @media (max-width: 360px) {
-    .timer-container {
-      width: 90vw;
-      padding: 30px 20px;
-    }
-    #time {
-      font-size: 4rem;
-    }
-    button {
-      padding: 12px 20px;
-      font-size: 1rem;
-    }
+  button.add-btn {
+    background: #ffcd3c;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 0 12px 12px 0;
+    font-weight: 700;
+    cursor: pointer;
+    color: #333;
+    transition: background-color 0.3s ease;
+  }
+  button.add-btn:hover {
+    background: #ffe066;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  li {
+    background: rgba(255 255 255 / 0.25);
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  li.completed {
+    background: #28a745;
+    text-decoration: line-through;
+    color: #d4edda;
+  }
+  li:hover:not(.completed) {
+    background: rgba(255 255 255 / 0.35);
+  }
+  .task-text {
+    flex: 1;
+  }
+  .stars {
+    font-size: 1.4rem;
+    color: gold;
+    margin-left: 15px;
+  }
+  .score {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #ffd700;
+    user-select: none;
   }
 </style>
 </head>
 <body>
 
-<div class="timer-container" role="main" aria-label="Таймер Помодоро">
-  <h1>Таймер Помодоро</h1>
-  <div id="sessionType" aria-live="polite">Работа</div>
-  <div id="time" aria-live="polite">25:00</div>
-  <div class="buttons">
-    <button id="startBtn" aria-label="Старт таймера">Старт</button>
-    <button id="pauseBtn" aria-label="Пауза таймера" disabled>Пауза</button>
-    <button id="resetBtn" aria-label="Сброс таймера">Сброс</button>
-  </div>
+<div class="app" role="main" aria-label="Приложение задачи с наградами">
+  <h1>Задачи и очки</h1>
+  <form id="taskForm" aria-label="Добавить новую задачу">
+    <input type="text" id="taskInput" placeholder="Новая задача" aria-required="true" />
+    <button type="submit" class="add-btn" aria-label="Добавить задачу">Добавить</button>
+  </form>
+  <ul id="taskList" aria-live="polite"></ul>
+  <div class="score" aria-live="polite">Очки: <span id="score">0</span> ⭐</div>
 </div>
 
 <script>
-  const workDuration = 25 * 60; // 25 минут в секундах
-  const breakDuration = 5 * 60; // 5 минут в секундах
+  const taskForm = document.getElementById('taskForm');
+  const taskInput = document.getElementById('taskInput');
+  const taskList = document.getElementById('taskList');
+  const scoreEl = document.getElementById('score');
 
-  let timer = null;
-  let timeLeft = workDuration;
-  let isWorkSession = true;
-  let isRunning = false;
+  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  let score = Number(localStorage.getItem('score')) || 0;
 
-  const sessionTypeEl = document.getElementById('sessionType');
-  const timeEl = document.getElementById('time');
-  const startBtn = document.getElementById('startBtn');
-  const pauseBtn = document.getElementById('pauseBtn');
-  const resetBtn = document.getElementById('resetBtn');
-
-  function formatTime(seconds) {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
+  function saveData() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+    localStorage.setItem('score', score);
   }
 
-  function updateUI() {
-    timeEl.textContent = formatTime(timeLeft);
-    sessionTypeEl.textContent = isWorkSession ? 'Работа' : 'Отдых';
-    startBtn.disabled = isRunning;
-    pauseBtn.disabled = !isRunning;
+  function renderTasks() {
+    taskList.innerHTML = '';
+    tasks.forEach((task, idx) => {
+      const li = document.createElement('li');
+      li.className = task.completed ? 'completed' : '';
+      li.setAttribute('tabindex', '0');
+      li.setAttribute('role', 'button');
+      li.setAttribute('aria-pressed', task.completed);
+
+      const spanText = document.createElement('span');
+      spanText.textContent = task.text;
+      spanText.className = 'task-text';
+
+      const stars = document.createElement('span');
+      stars.className = 'stars';
+      stars.textContent = '⭐'.repeat(task.completed ? 1 : 0);
+
+      li.appendChild(spanText);
+      li.appendChild(stars);
+
+      li.addEventListener('click', () => toggleTask(idx));
+      li.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleTask(idx);
+        }
+      });
+
+      taskList.appendChild(li);
+    });
+    scoreEl.textContent = score;
   }
 
-  function playSound() {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
-    oscillator.connect(audioCtx.destination);
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.3);
-  }
-
-  function tick() {
-    if (timeLeft > 0) {
-      timeLeft--;
-      updateUI();
+  function toggleTask(index) {
+    if (!tasks[index].completed) {
+      tasks[index].completed = true;
+      score += 1;  // За каждое выполнение +1 очко
     } else {
-      playSound();
-      isWorkSession = !isWorkSession;
-      timeLeft = isWorkSession ? workDuration : breakDuration;
-      updateUI();
+      tasks[index].completed = false;
+      score -= 1;
     }
+    if(score < 0) score = 0;
+    saveData();
+    renderTasks();
   }
 
-  startBtn.addEventListener('click', () => {
-    if (!isRunning) {
-      timer = setInterval(tick, 1000);
-      isRunning = true;
-      updateUI();
+  taskForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const newTask = taskInput.value.trim();
+    if(newTask) {
+      tasks.push({ text: newTask, completed: false });
+      taskInput.value = '';
+      saveData();
+      renderTasks();
     }
   });
 
-  pauseBtn.addEventListener('click', () => {
-    if (isRunning) {
-      clearInterval(timer);
-      isRunning = false;
-      updateUI();
-    }
-  });
-
-  resetBtn.addEventListener('click', () => {
-    clearInterval(timer);
-    isRunning = false;
-    isWorkSession = true;
-    timeLeft = workDuration;
-    updateUI();
-  });
-
-  updateUI();
+  renderTasks();
 </script>
 
 </body>
