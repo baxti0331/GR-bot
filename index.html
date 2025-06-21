@@ -3,129 +3,172 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Красивый Счётчик</title>
+<title>Трекер привычек</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-
-  * {
-    box-sizing: border-box;
-  }
+  @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap');
   body {
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-    color: #fff;
-    font-family: 'Montserrat', sans-serif;
-    margin: 0;
+    font-family: 'Rubik', sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    margin: 0; padding: 0;
+    display: flex; justify-content: center; align-items: center;
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+    color: #fff;
   }
-  .counter-container {
-    background: rgba(255, 255, 255, 0.1);
+  .container {
+    background: rgba(255 255 255 / 0.1);
+    padding: 30px 40px;
     border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    padding: 40px 60px;
-    max-width: 320px;
-    text-align: center;
-    backdrop-filter: blur(8px);
-    transition: box-shadow 0.3s ease;
-  }
-  .counter-container:hover {
-    box-shadow: 0 12px 48px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    max-width: 400px;
+    width: 100%;
   }
   h1 {
-    margin: 0 0 30px;
+    margin: 0 0 25px;
+    text-align: center;
     font-weight: 700;
-    font-size: 2.5rem;
-    letter-spacing: 2px;
+    letter-spacing: 1.2px;
   }
-  .count {
-    font-size: 5rem;
-    font-weight: 700;
-    margin: 0 0 30px;
-    user-select: none;
-    animation: pulse 1s ease-in-out infinite alternate;
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 25px;
   }
-  @keyframes pulse {
-    0% { transform: scale(1); color: #fff; }
-    100% { transform: scale(1.1); color: #ffd700; }
-  }
-  .buttons {
+  li {
+    background: rgba(255 255 255 / 0.2);
+    margin-bottom: 15px;
+    padding: 15px 20px;
+    border-radius: 15px;
     display: flex;
-    gap: 20px;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+  li.completed {
+    background: #3b82f6;
+    text-decoration: line-through;
+    color: #e0e7ff;
+  }
+  li:hover:not(.completed) {
+    background: rgba(255 255 255 / 0.3);
   }
   button {
-    background: #ffd700;
+    background: #ffce00;
     border: none;
-    border-radius: 12px;
-    padding: 15px 30px;
-    font-size: 1.2rem;
+    padding: 10px 18px;
     font-weight: 700;
-    color: #3a3a3a;
+    border-radius: 12px;
     cursor: pointer;
-    box-shadow: 0 6px 15px rgba(255, 215, 0, 0.5);
-    transition: background 0.3s ease, transform 0.2s ease;
+    width: 100%;
+    font-size: 1.1rem;
+    color: #3a3a3a;
+    box-shadow: 0 6px 12px rgba(255 206 0, 0.6);
+    transition: background-color 0.3s ease;
   }
   button:hover {
-    background: #ffea33;
-    transform: translateY(-3px);
+    background: #ffe640;
   }
-  button:active {
-    transform: translateY(0);
+  input[type="text"] {
+    width: calc(100% - 50px);
+    padding: 12px 15px;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+    margin-right: 10px;
   }
-  button:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px #fff;
+  form {
+    display: flex;
+    margin-bottom: 20px;
   }
-  @media (max-width: 400px) {
-    .counter-container {
-      padding: 30px 20px;
-      max-width: 90vw;
+  @media(max-width: 420px) {
+    .container {
+      padding: 25px 20px;
+      max-width: 95vw;
     }
-    .count {
-      font-size: 3.5rem;
+    input[type="text"] {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    form {
+      flex-direction: column;
     }
     button {
-      flex: 1;
-      padding: 12px 0;
-      font-size: 1rem;
+      width: 100%;
     }
   }
 </style>
 </head>
 <body>
 
-<div class="counter-container" role="main" aria-label="Счётчик">
-  <h1>Счётчик</h1>
-  <div class="count" id="count" aria-live="polite">0</div>
-  <div class="buttons">
-    <button id="incrementBtn" aria-label="Увеличить счётчик">+1</button>
-    <button id="resetBtn" aria-label="Сбросить счётчик">Сброс</button>
-  </div>
+<div class="container" role="main" aria-label="Трекер привычек">
+  <h1>Трекер привычек</h1>
+  <form id="habitForm" aria-label="Добавить новую привычку">
+    <input type="text" id="habitInput" placeholder="Новая привычка" aria-required="true" />
+    <button type="submit" aria-label="Добавить привычку">Добавить</button>
+  </form>
+  <ul id="habitList" aria-live="polite"></ul>
+  <button id="clearBtn" aria-label="Очистить все выполненные">Очистить выполненные</button>
 </div>
 
 <script>
-  const countEl = document.getElementById('count');
-  const incrementBtn = document.getElementById('incrementBtn');
-  const resetBtn = document.getElementById('resetBtn');
+  const habitForm = document.getElementById('habitForm');
+  const habitInput = document.getElementById('habitInput');
+  const habitList = document.getElementById('habitList');
+  const clearBtn = document.getElementById('clearBtn');
 
-  let count = 0;
+  // Загружаем привычки из localStorage
+  let habits = JSON.parse(localStorage.getItem('habits')) || [];
 
-  function updateCount() {
-    countEl.textContent = count;
+  function saveHabits() {
+    localStorage.setItem('habits', JSON.stringify(habits));
   }
 
-  incrementBtn.addEventListener('click', () => {
-    count++;
-    updateCount();
+  function renderHabits() {
+    habitList.innerHTML = '';
+    habits.forEach((habit, index) => {
+      const li = document.createElement('li');
+      li.textContent = habit.name;
+      li.classList.toggle('completed', habit.completed);
+      li.setAttribute('tabindex', '0');
+      li.setAttribute('role', 'button');
+      li.setAttribute('aria-pressed', habit.completed);
+      li.addEventListener('click', () => toggleHabit(index));
+      li.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleHabit(index);
+        }
+      });
+      habitList.appendChild(li);
+    });
+  }
+
+  function toggleHabit(index) {
+    habits[index].completed = !habits[index].completed;
+    saveHabits();
+    renderHabits();
+  }
+
+  habitForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const newHabit = habitInput.value.trim();
+    if(newHabit) {
+      habits.push({ name: newHabit, completed: false });
+      habitInput.value = '';
+      saveHabits();
+      renderHabits();
+    }
   });
 
-  resetBtn.addEventListener('click', () => {
-    count = 0;
-    updateCount();
+  clearBtn.addEventListener('click', () => {
+    habits = habits.filter(habit => !habit.completed);
+    saveHabits();
+    renderHabits();
   });
+
+  // Инициализация
+  renderHabits();
 </script>
 
 </body>
