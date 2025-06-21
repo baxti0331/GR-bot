@@ -3,172 +3,179 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Трекер привычек</title>
+<title>Таймер Помодоро</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
   body {
-    font-family: 'Rubik', sans-serif;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    margin: 0; padding: 0;
-    display: flex; justify-content: center; align-items: center;
-    min-height: 100vh;
+    margin: 0; 
+    height: 100vh;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    background: linear-gradient(135deg, #ff6a00, #ee0979);
+    font-family: 'Poppins', sans-serif;
     color: #fff;
   }
-  .container {
-    background: rgba(255 255 255 / 0.1);
-    padding: 30px 40px;
-    border-radius: 20px;
+  .timer-container {
+    background: rgba(255 255 255 / 0.15);
+    padding: 40px 60px;
+    border-radius: 30px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    max-width: 400px;
-    width: 100%;
-  }
-  h1 {
-    margin: 0 0 25px;
     text-align: center;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-  }
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 25px;
-  }
-  li {
-    background: rgba(255 255 255 / 0.2);
-    margin-bottom: 15px;
-    padding: 15px 20px;
-    border-radius: 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    width: 320px;
     user-select: none;
   }
-  li.completed {
-    background: #3b82f6;
-    text-decoration: line-through;
-    color: #e0e7ff;
+  h1 {
+    margin-bottom: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    font-size: 2rem;
   }
-  li:hover:not(.completed) {
-    background: rgba(255 255 255 / 0.3);
+  #sessionType {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #ffd700;
+  }
+  #time {
+    font-size: 5rem;
+    font-weight: 700;
+    margin-bottom: 40px;
+    letter-spacing: 4px;
+  }
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
   }
   button {
-    background: #ffce00;
+    background: #ffd700;
     border: none;
-    padding: 10px 18px;
+    border-radius: 15px;
+    padding: 15px 30px;
     font-weight: 700;
-    border-radius: 12px;
-    cursor: pointer;
-    width: 100%;
     font-size: 1.1rem;
     color: #3a3a3a;
-    box-shadow: 0 6px 12px rgba(255 206 0, 0.6);
-    transition: background-color 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(255, 215, 0, 0.6);
+    transition: background-color 0.3s ease, transform 0.2s ease;
   }
   button:hover {
-    background: #ffe640;
+    background: #ffea33;
+    transform: translateY(-3px);
   }
-  input[type="text"] {
-    width: calc(100% - 50px);
-    padding: 12px 15px;
-    border-radius: 12px;
-    border: none;
-    font-size: 1rem;
-    margin-right: 10px;
+  button:active {
+    transform: translateY(0);
   }
-  form {
-    display: flex;
-    margin-bottom: 20px;
+  button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px #fff;
   }
-  @media(max-width: 420px) {
-    .container {
-      padding: 25px 20px;
-      max-width: 95vw;
+  @media (max-width: 360px) {
+    .timer-container {
+      width: 90vw;
+      padding: 30px 20px;
     }
-    input[type="text"] {
-      width: 100%;
-      margin-bottom: 10px;
-    }
-    form {
-      flex-direction: column;
+    #time {
+      font-size: 4rem;
     }
     button {
-      width: 100%;
+      padding: 12px 20px;
+      font-size: 1rem;
     }
   }
 </style>
 </head>
 <body>
 
-<div class="container" role="main" aria-label="Трекер привычек">
-  <h1>Трекер привычек</h1>
-  <form id="habitForm" aria-label="Добавить новую привычку">
-    <input type="text" id="habitInput" placeholder="Новая привычка" aria-required="true" />
-    <button type="submit" aria-label="Добавить привычку">Добавить</button>
-  </form>
-  <ul id="habitList" aria-live="polite"></ul>
-  <button id="clearBtn" aria-label="Очистить все выполненные">Очистить выполненные</button>
+<div class="timer-container" role="main" aria-label="Таймер Помодоро">
+  <h1>Таймер Помодоро</h1>
+  <div id="sessionType" aria-live="polite">Работа</div>
+  <div id="time" aria-live="polite">25:00</div>
+  <div class="buttons">
+    <button id="startBtn" aria-label="Старт таймера">Старт</button>
+    <button id="pauseBtn" aria-label="Пауза таймера" disabled>Пауза</button>
+    <button id="resetBtn" aria-label="Сброс таймера">Сброс</button>
+  </div>
 </div>
 
 <script>
-  const habitForm = document.getElementById('habitForm');
-  const habitInput = document.getElementById('habitInput');
-  const habitList = document.getElementById('habitList');
-  const clearBtn = document.getElementById('clearBtn');
+  const workDuration = 25 * 60; // 25 минут в секундах
+  const breakDuration = 5 * 60; // 5 минут в секундах
 
-  // Загружаем привычки из localStorage
-  let habits = JSON.parse(localStorage.getItem('habits')) || [];
+  let timer = null;
+  let timeLeft = workDuration;
+  let isWorkSession = true;
+  let isRunning = false;
 
-  function saveHabits() {
-    localStorage.setItem('habits', JSON.stringify(habits));
+  const sessionTypeEl = document.getElementById('sessionType');
+  const timeEl = document.getElementById('time');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
   }
 
-  function renderHabits() {
-    habitList.innerHTML = '';
-    habits.forEach((habit, index) => {
-      const li = document.createElement('li');
-      li.textContent = habit.name;
-      li.classList.toggle('completed', habit.completed);
-      li.setAttribute('tabindex', '0');
-      li.setAttribute('role', 'button');
-      li.setAttribute('aria-pressed', habit.completed);
-      li.addEventListener('click', () => toggleHabit(index));
-      li.addEventListener('keydown', e => {
-        if(e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          toggleHabit(index);
-        }
-      });
-      habitList.appendChild(li);
-    });
+  function updateUI() {
+    timeEl.textContent = formatTime(timeLeft);
+    sessionTypeEl.textContent = isWorkSession ? 'Работа' : 'Отдых';
+    startBtn.disabled = isRunning;
+    pauseBtn.disabled = !isRunning;
   }
 
-  function toggleHabit(index) {
-    habits[index].completed = !habits[index].completed;
-    saveHabits();
-    renderHabits();
+  function playSound() {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioCtx.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime);
+    oscillator.connect(audioCtx.destination);
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.3);
   }
 
-  habitForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const newHabit = habitInput.value.trim();
-    if(newHabit) {
-      habits.push({ name: newHabit, completed: false });
-      habitInput.value = '';
-      saveHabits();
-      renderHabits();
+  function tick() {
+    if (timeLeft > 0) {
+      timeLeft--;
+      updateUI();
+    } else {
+      playSound();
+      isWorkSession = !isWorkSession;
+      timeLeft = isWorkSession ? workDuration : breakDuration;
+      updateUI();
+    }
+  }
+
+  startBtn.addEventListener('click', () => {
+    if (!isRunning) {
+      timer = setInterval(tick, 1000);
+      isRunning = true;
+      updateUI();
     }
   });
 
-  clearBtn.addEventListener('click', () => {
-    habits = habits.filter(habit => !habit.completed);
-    saveHabits();
-    renderHabits();
+  pauseBtn.addEventListener('click', () => {
+    if (isRunning) {
+      clearInterval(timer);
+      isRunning = false;
+      updateUI();
+    }
   });
 
-  // Инициализация
-  renderHabits();
+  resetBtn.addEventListener('click', () => {
+    clearInterval(timer);
+    isRunning = false;
+    isWorkSession = true;
+    timeLeft = workDuration;
+    updateUI();
+  });
+
+  updateUI();
 </script>
 
 </body>
