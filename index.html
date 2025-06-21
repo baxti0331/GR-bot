@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Задачи с наградами</title>
+<title>Задачи с наградами и магазином</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
   body {
@@ -13,18 +13,18 @@
     display: flex; justify-content: center; align-items: center;
     height: 100vh;
     color: #fff;
+    user-select: none;
   }
   .app {
     background: rgba(255 255 255 / 0.15);
     border-radius: 25px;
     padding: 30px 40px;
-    width: 350px;
+    width: 380px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-    user-select: none;
   }
   h1 {
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     font-weight: 700;
     letter-spacing: 1.5px;
   }
@@ -39,24 +39,33 @@
     border: none;
     font-size: 1rem;
     outline: none;
+    transition: box-shadow 0.3s ease;
+  }
+  input[type="text"]:focus {
+    box-shadow: 0 0 10px #ffd700;
   }
   button.add-btn {
-    background: #ffcd3c;
+    background: linear-gradient(45deg, #ffcd3c, #ff9a00);
     border: none;
-    padding: 12px 20px;
+    padding: 12px 25px;
     border-radius: 0 12px 12px 0;
     font-weight: 700;
     cursor: pointer;
     color: #333;
-    transition: background-color 0.3s ease;
+    box-shadow: 0 6px 15px rgba(255, 205, 60, 0.6);
+    transition: background 0.3s ease, transform 0.2s ease;
   }
   button.add-btn:hover {
-    background: #ffe066;
+    background: linear-gradient(45deg, #ffe066, #ffb833);
+    transform: translateY(-3px);
+  }
+  button.add-btn:active {
+    transform: translateY(0);
   }
   ul {
     list-style: none;
     padding: 0;
-    margin: 0 0 20px;
+    margin: 0 0 25px;
     max-height: 300px;
     overflow-y: auto;
   }
@@ -93,19 +102,119 @@
     font-weight: 700;
     color: #ffd700;
     user-select: none;
+    margin-bottom: 20px;
+  }
+  
+  /* Магазин */
+  .shop {
+    background: rgba(255 255 255 / 0.1);
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .shop h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+  .items {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .item {
+    background: rgba(255 255 255 / 0.25);
+    border-radius: 15px;
+    padding: 15px;
+    flex: 1 1 100px;
+    max-width: 110px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  .item:hover {
+    background: rgba(255 255 255 / 0.4);
+  }
+  .item p {
+    margin: 10px 0 5px;
+    font-weight: 600;
+  }
+  .item .cost {
+    font-size: 0.9rem;
+    color: #ffd700;
+    font-weight: 700;
+  }
+  .item.bought {
+    border: 3px solid #28a745;
+  }
+  .item.bought::after {
+    content: "✓";
+    color: #28a745;
+    font-size: 1.6rem;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-weight: 900;
+  }
+  
+  /* Кнопка магазина */
+  .toggle-shop-btn {
+    display: block;
+    margin: 0 auto 20px auto;
+    background: linear-gradient(45deg, #6a11cb, #2575fc);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 12px 30px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(101, 45, 255, 0.6);
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  .toggle-shop-btn:hover {
+    background: linear-gradient(45deg, #8255f9, #4aa0ff);
+    transform: translateY(-3px);
+  }
+  .toggle-shop-btn:active {
+    transform: translateY(0);
   }
 </style>
 </head>
 <body>
 
-<div class="app" role="main" aria-label="Приложение задачи с наградами">
+<div class="app" role="main" aria-label="Приложение задачи с наградами и магазином">
   <h1>Задачи и очки</h1>
   <form id="taskForm" aria-label="Добавить новую задачу">
     <input type="text" id="taskInput" placeholder="Новая задача" aria-required="true" />
     <button type="submit" class="add-btn" aria-label="Добавить задачу">Добавить</button>
   </form>
+
   <ul id="taskList" aria-live="polite"></ul>
+
   <div class="score" aria-live="polite">Очки: <span id="score">0</span> ⭐</div>
+
+  <button class="toggle-shop-btn" aria-expanded="false" aria-controls="shopSection">Магазин 🎁</button>
+
+  <section id="shopSection" class="shop" hidden aria-label="Магазин товаров">
+    <h2>Магазин</h2>
+    <div class="items">
+      <!-- Пример товаров -->
+      <div class="item" data-id="sticker1" data-cost="3" tabindex="0" role="button" aria-pressed="false" aria-label="Купить Стикер 1 за 3 очка">
+        <p>Стикер 1</p>
+        <div class="cost">3 ⭐</div>
+      </div>
+      <div class="item" data-id="sticker2" data-cost="5" tabindex="0" role="button" aria-pressed="false" aria-label="Купить Стикер 2 за 5 очков">
+        <p>Стикер 2</p>
+        <div class="cost">5 ⭐</div>
+      </div>
+      <div class="item" data-id="theme1" data-cost="7" tabindex="0" role="button" aria-pressed="false" aria-label="Купить Тему 1 за 7 очков">
+        <p>Тема 1</p>
+        <div class="cost">7 ⭐</div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script>
@@ -113,13 +222,18 @@
   const taskInput = document.getElementById('taskInput');
   const taskList = document.getElementById('taskList');
   const scoreEl = document.getElementById('score');
+  const shopSection = document.getElementById('shopSection');
+  const toggleShopBtn = document.querySelector('.toggle-shop-btn');
+  const items = document.querySelectorAll('.item');
 
   let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
   let score = Number(localStorage.getItem('score')) || 0;
+  let boughtItems = JSON.parse(localStorage.getItem('boughtItems')) || [];
 
   function saveData() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
     localStorage.setItem('score', score);
+    localStorage.setItem('boughtItems', JSON.stringify(boughtItems));
   }
 
   function renderTasks() {
@@ -158,7 +272,7 @@
   function toggleTask(index) {
     if (!tasks[index].completed) {
       tasks[index].completed = true;
-      score += 1;  // За каждое выполнение +1 очко
+      score += 1;
     } else {
       tasks[index].completed = false;
       score -= 1;
@@ -179,7 +293,71 @@
     }
   });
 
-  renderTasks();
+  // Магазин
+
+  function updateShop() {
+    items.forEach(item => {
+      const id = item.dataset.id;
+      const cost = Number(item.dataset.cost);
+      const isBought = boughtItems.includes(id);
+      item.classList.toggle('bought', isBought);
+      item.setAttribute('aria-pressed', isBought);
+      item.style.pointerEvents = isBought ? 'none' : 'auto';
+      item.querySelector('.cost').textContent = isBought ? 'Куплено' : `${cost} ⭐`;
+    });
+  }
+
+  function buyItem(id, cost) {
+    if (score >= cost && !boughtItems.includes(id)) {
+      score -= cost;
+      boughtItems.push(id);
+      saveData();
+      renderTasks();
+      updateShop();
+      alert(`Вы купили ${id}!`);
+    } else if (boughtItems.includes(id)) {
+      alert('Этот предмет уже куплен.');
+    } else {
+      alert('Недостаточно очков для покупки.');
+    }
+  }
+
+  items.forEach(item => {
+    item.addEventListener('click', () => {
+      const id = item.dataset.id;
+      const cost = Number(item.dataset.cost);
+      buyItem(id, cost);
+    });
+    item.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        const id = item.dataset.id;
+        const cost = Number(item.dataset.cost);
+        buyItem(id, cost);
+      }
+    });
+  });
+
+  toggleShopBtn.addEventListener('click', () => {
+    const isHidden = shopSection.hasAttribute('hidden');
+    if (isHidden) {
+      shopSection.removeAttribute('hidden');
+      toggleShopBtn.setAttribute('aria-expanded', 'true');
+      toggleShopBtn.textContent = 'Закрыть магазин ❌';
+    } else {
+      shopSection.setAttribute('hidden', '');
+      toggleShopBtn.setAttribute('aria-expanded', 'false');
+      toggleShopBtn.textContent = 'Магазин 🎁';
+    }
+  });
+
+  // Инициализация
+  function init() {
+    renderTasks();
+    updateShop();
+  }
+
+  init();
 </script>
 
 </body>
