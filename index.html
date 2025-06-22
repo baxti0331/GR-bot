@@ -12,23 +12,23 @@
       transition: all 0.2s ease-in-out;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
-<style>
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
-.animate-spin-slow {
-  animation: spin 2s linear infinite;
-}
-</style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .animate-spin-slow {
+      animation: spin 2s linear infinite;
+    }
+
     .active-tab {
       border-bottom-width: 2px;
       border-color: #8b5cf6;
     }
   </style>
 </head>
-<body class="font-sans text-gray-900 dark:text-white dark:bg-gray-900 transition-all">
+<body class="font-sans text-gray-900 dark:text-white dark:bg-gray-900 transition-all pb-14">
 
   <script>
     const tg = Telegram.WebApp;
@@ -37,14 +37,6 @@
     // Применение темы
     const theme = tg.colorScheme || 'light';
     document.documentElement.classList.toggle('dark', theme === 'dark');
-
-    // Пример обновления баланса (можно заменить на реальный backend)
-    const balanceElem = document.getElementById("balance");
-    let balance = 100;
-    function updateBalanceDisplay() {
-      balanceElem.innerHTML = `${balance} ⭐`;
-    }
-    window.onload = updateBalanceDisplay;
   </script>
 
   <!-- Header -->
@@ -56,13 +48,13 @@
   </div>
 
   <!-- Tabs -->
-  <div class="flex justify-around mt-4 text-sm text-purple-700 font-semibold">
-    <button class="active-tab pb-1">Магазин</button>
+  <div class="flex justify-around mt-4 text-sm font-semibold">
+    <button class="active-tab pb-1 text-purple-700">Магазин</button>
     <button class="pb-1 text-gray-500 dark:text-gray-400">Мои подарки</button>
   </div>
 
   <!-- Gift Cards -->
-  <div class="p-4 grid grid-cols-2 gap-4">
+  <div class="p-4 grid grid-cols-2 gap-4" id="shop-content">
     <!-- Подарки -->
     <div onclick="openGift('Подарок со звёздами', 15)" class="gift-card bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow cursor-pointer transition">
       <img src="https://img.icons8.com/emoji/48/gift-emoji.png" class="mx-auto mb-2 w-10 h-10" />
@@ -91,6 +83,11 @@
     </div>
   </div>
 
+  <!-- Мои подарки (скрыт пока) -->
+  <div class="p-4 hidden" id="my-gifts-content">
+    <p class="text-center text-gray-500 dark:text-gray-400">Здесь будут твои подарки</p>
+  </div>
+
   <!-- Bottom Navigation -->
   <div class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around py-3 text-sm z-50">
     <button class="text-purple-700 font-semibold">🎁 Открывай</button>
@@ -99,73 +96,104 @@
   </div>
 
   <!-- Модалка -->
-<div id="modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
-  <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-72 text-center relative">
-    <h2 id="modal-title" class="text-lg font-bold mb-2">Открытие подарка...</h2>
-    
-    <!-- Подарок вращается -->
-    <img id="modal-gift" src="https://img.icons8.com/emoji/96/gift-emoji.png"
-         class="mx-auto w-16 h-16 animate-spin-slow mb-4" />
-    
-    <p id="modal-text" class="text-gray-500 mb-4">Жди результат...</p>
-    <button onclick="closeModal()" id="close-btn" class="bg-purple-600 text-white px-4 py-2 rounded shadow hidden">Закрыть</button>
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-72 text-center relative">
+      <h2 id="modal-title" class="text-lg font-bold mb-2">Открытие подарка...</h2>
+
+      <!-- Подарок вращается -->
+      <img id="modal-gift" src="https://img.icons8.com/emoji/96/gift-emoji.png"
+           class="mx-auto w-16 h-16 animate-spin-slow mb-4" />
+
+      <p id="modal-text" class="text-gray-500 mb-4">Жди результат...</p>
+      <button onclick="closeModal()" id="close-btn" class="bg-purple-600 text-white px-4 py-2 rounded shadow hidden">Закрыть</button>
+    </div>
   </div>
-</div>
 
- <script>
-  const balanceElem = document.getElementById("balance");
-  const modal = document.getElementById("modal");
-  const modalTitle = document.getElementById("modal-title");
-  const modalText = document.getElementById("modal-text");
-  const modalGift = document.getElementById("modal-gift");
-  const closeBtn = document.getElementById("close-btn");
+  <script>
+    const balanceElem = document.getElementById("balance");
+    const modal = document.getElementById("modal");
+    const modalTitle = document.getElementById("modal-title");
+    const modalText = document.getElementById("modal-text");
+    const modalGift = document.getElementById("modal-gift");
+    const closeBtn = document.getElementById("close-btn");
 
-  let balance = 100;
+    let balance = 100;
 
-  function updateBalanceDisplay() {
-    balanceElem.innerHTML = `${balance} ⭐`;
-  }
-
-  window.onload = updateBalanceDisplay;
-
-  function openGift(name, price) {
-    if (balance < price) {
-      showModal("Недостаточно звёзд", `У тебя всего ${balance} ⭐`, false);
-      return;
+    function updateBalanceDisplay() {
+      balanceElem.innerHTML = `${balance} ⭐`;
     }
 
-    balance -= price;
-    updateBalanceDisplay();
+    window.onload = () => {
+      updateBalanceDisplay();
+      setupTabs();
+    };
 
-    showModal(name, "Подарок открывается...", true);
+    function openGift(name, price) {
+      if (balance < price) {
+        showModal("Недостаточно звёзд", `У тебя всего ${balance} ⭐`, false);
+        return;
+      }
 
-    // Ждём 2.5 секунды, как будто он "выпадает"
-    setTimeout(() => {
-      const prizes = ["10 ⭐", "50 ⭐", "ничего", "NFT", "Telegram Premium", "15 ⭐"];
-      const result = prizes[Math.floor(Math.random() * prizes.length)];
+      balance -= price;
+      updateBalanceDisplay();
 
-      modalTitle.textContent = "🎉 Поздравляем!";
-      modalText.textContent = `Тебе выпало: ${result}`;
-      modalGift.classList.remove("animate-spin-slow");
-      closeBtn.classList.remove("hidden");
-    }, 2500);
-  }
+      showModal(name, "Подарок открывается...", true);
 
-  function showModal(title, text, spinning) {
-    modal.classList.remove("hidden");
-    modalTitle.textContent = title;
-    modalText.textContent = text;
+      setTimeout(() => {
+        const prizes = ["10 ⭐", "50 ⭐", "ничего", "NFT", "Telegram Premium", "15 ⭐"];
+        const result = prizes[Math.floor(Math.random() * prizes.length)];
 
-    if (spinning) {
-      modalGift.classList.add("animate-spin-slow");
-      closeBtn.classList.add("hidden");
-    } else {
-      modalGift.classList.remove("animate-spin-slow");
-      closeBtn.classList.remove("hidden");
+        modalTitle.textContent = "🎉 Поздравляем!";
+        modalText.textContent = `Тебе выпало: ${result}`;
+        modalGift.classList.remove("animate-spin-slow");
+        closeBtn.classList.remove("hidden");
+      }, 2500);
     }
-  }
 
-  function closeModal() {
-    modal.classList.add("hidden");
-  }
-</script>
+    function showModal(title, text, spinning) {
+      modal.classList.remove("hidden");
+      modalTitle.textContent = title;
+      modalText.textContent = text;
+
+      if (spinning) {
+        modalGift.classList.add("animate-spin-slow");
+        closeBtn.classList.add("hidden");
+      } else {
+        modalGift.classList.remove("animate-spin-slow");
+        closeBtn.classList.remove("hidden");
+      }
+    }
+
+    function closeModal() {
+      modal.classList.add("hidden");
+    }
+
+    // Переключение табов
+    function setupTabs() {
+      const tabs = document.querySelectorAll('.flex.justify-around.mt-4.text-sm.font-semibold button');
+      const shopContent = document.getElementById('shop-content');
+      const myGiftsContent = document.getElementById('my-gifts-content');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => {
+            t.classList.remove('active-tab', 'text-purple-700');
+            t.classList.add('text-gray-500', 'dark:text-gray-400');
+          });
+
+          tab.classList.add('active-tab', 'text-purple-700');
+          tab.classList.remove('text-gray-500', 'dark:text-gray-400');
+
+          if (tab.textContent === 'Магазин') {
+            shopContent.classList.remove('hidden');
+            myGiftsContent.classList.add('hidden');
+          } else if (tab.textContent === 'Мои подарки') {
+            shopContent.classList.add('hidden');
+            myGiftsContent.classList.remove('hidden');
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>
