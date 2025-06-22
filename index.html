@@ -12,7 +12,16 @@
       transition: all 0.2s ease-in-out;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
+.animate-spin-slow {
+  animation: spin 2s linear infinite;
+}
+</style>
     .active-tab {
       border-bottom-width: 2px;
       border-color: #8b5cf6;
