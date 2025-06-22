@@ -3,105 +3,213 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Giftomania 🎁 — Магазин подарков</title>
+  <title>Giftomania 🎁</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
   <style>
-    /* Карточки подарков */
     .gift-card {
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
       cursor: pointer;
-      user-select: none;
     }
     .gift-card:hover, .gift-card:focus-visible {
-      transform: scale(1.07);
-      box-shadow: 0 12px 28px rgba(139, 92, 246, 0.4);
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
       outline: none;
     }
-    /* Активная вкладка */
     .active-tab {
-      border-bottom-width: 3px;
+      border-bottom-width: 2px;
       border-color: #8b5cf6;
       color: #8b5cf6;
-      font-weight: 700;
     }
     /* Модалка */
     #modal {
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(5px);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
       transition: opacity 0.3s ease;
     }
     #modal[hidden] {
       display: none;
     }
-    /* Кнопки */
     button:focus-visible {
       outline: 2px solid #8b5cf6;
-      outline-offset: 3px;
-    }
-    /* Анимация кнопок */
-    button {
-      transition: background-color 0.3s ease, color 0.3s ease;
+      outline-offset: 2px;
     }
     /* Плавное обновление баланса */
     #balance {
-      transition: all 0.4s ease;
+      transition: all 0.3s ease;
     }
   </style>
 </head>
 <body class="font-sans text-gray-900 dark:text-white dark:bg-gray-900 transition-all">
 
-<script>
-  // Telegram WebApp Init и тема
-  const tg = Telegram.WebApp;
-  tg.expand();
+  <script>
+    const tg = Telegram.WebApp;
+    tg.expand();
 
-  const theme = tg.colorScheme || 'light';
-  document.documentElement.classList.toggle('dark', theme === 'dark');
-</script>
+    // Установка темы
+    const theme = tg.colorScheme || 'light';
+    document.documentElement.classList.toggle('dark', theme === 'dark');
 
-<!-- Хедер -->
-<header class="bg-purple-600 text-white px-6 py-5 rounded-b-3xl shadow-lg flex justify-between items-center select-none sticky top-0 z-40">
-  <h1 class="text-2xl font-extrabold tracking-wide">Giftomania 🎁</h1>
-  <span class="text-lg">Баланс: <strong id="balance">...</strong></span>
-</header>
+    // Баланс
+    let balance = Number(localStorage.getItem('balance')) || 100;
 
-<!-- Навигация табов -->
-<nav class="flex justify-center mt-6 space-x-12 text-lg font-semibold text-purple-700 select-none" role="tablist" aria-label="Основные разделы">
-  <button id="tab-shop" class="active-tab pb-2 focus:outline-none" role="tab" aria-selected="true" tabindex="0" aria-controls="content-shop">Магазин</button>
-  <button id="tab-gifts" class="pb-2 text-gray-500 dark:text-gray-400 focus:outline-none" role="tab" aria-selected="false" tabindex="-1" aria-controls="content-gifts">Мои подарки</button>
-</nav>
+    function updateBalanceDisplay() {
+      const balanceElem = document.getElementById('balance');
+      balanceElem.textContent = `${balance} ⭐`;
+    }
 
-<!-- Контейнер для табов -->
-<main class="p-6 max-w-3xl mx-auto">
-  <!-- Магазин -->
-  <section id="content-shop" role="tabpanel" tabindex="0" aria-labelledby="tab-shop" class="grid grid-cols-2 gap-6">
-    <!-- Подарки генерируются JS -->
+    function saveBalance() {
+      localStorage.setItem('balance', balance);
+    }
+
+    window.addEventListener('load', () => {
+      updateBalanceDisplay();
+      initTabs();
+    });
+  </script>
+
+  <!-- Header -->
+  <header class="bg-purple-600 text-white px-4 py-4 rounded-b-2xl shadow flex items-center justify-between">
+    <h1 class="text-xl font-bold select-none">Giftomania 🎁</h1>
+    <span class="text-sm select-none">Баланс: <strong id="balance">...</strong></span>
+  </header>
+
+  <!-- Tabs -->
+  <nav class="flex justify-around mt-4 text-sm font-semibold text-purple-700 select-none" role="tablist" aria-label="Основные разделы">
+    <button id="tab-shop" class="active-tab pb-1 focus:outline-none" role="tab" aria-selected="true" tabindex="0" aria-controls="content-shop">Магазин</button>
+    <button id="tab-gifts" class="pb-1 text-gray-500 dark:text-gray-400 focus:outline-none" role="tab" aria-selected="false" tabindex="-1" aria-controls="content-gifts">Мои подарки</button>
+  </nav>
+
+  <!-- Контент табов -->
+  <section id="content-shop" role="tabpanel" tabindex="0" aria-labelledby="tab-shop" class="p-4 grid grid-cols-2 gap-4">
+    <!-- Подарки -->
+    <div tabindex="0" role="button" aria-pressed="false" aria-label="Купить Подарок со звёздами за 15 звёзд" onclick="openGift('Подарок со звёздами', 15)" onkeypress="if(event.key==='Enter' || event.key===' ') openGift('Подарок со звёздами', 15)" class="gift-card bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow transition">
+      <img src="https://img.icons8.com/emoji/48/gift-emoji.png" alt="Подарок со звёздами" class="mx-auto mb-2 w-10 h-10" />
+      <h3 class="font-medium">Подарок со звёздами</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">15 ⭐</p>
+    </div>
+    <div tabindex="0" role="button" aria-pressed="false" aria-label="Купить Бронзовый подарок за 25 звёзд" onclick="openGift('Бронзовый подарок', 25)" onkeypress="if(event.key==='Enter' || event.key===' ') openGift('Бронзовый подарок', 25)" class="gift-card bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow transition">
+      <img src="https://img.icons8.com/color/48/gift.png" alt="Бронзовый подарок" class="mx-auto mb-2 w-10 h-10" />
+      <h3 class="font-medium">Бронзовый</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">25 ⭐</p>
+    </div>
+    <div tabindex="0" role="button" aria-pressed="false" aria-label="Купить Серебряный подарок за 50 звёзд" onclick="openGift('Серебряный подарок', 50)" onkeypress="if(event.key==='Enter' || event.key===' ') openGift('Серебряный подарок', 50)" class="gift-card bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow transition">
+      <img src="https://img.icons8.com/office/48/gift.png" alt="Серебряный подарок" class="mx-auto mb-2 w-10 h-10" />
+      <h3 class="font-medium">Серебряный</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">50 ⭐</p>
+    </div>
+    <div tabindex="0" role="button" aria-pressed="false" aria-label="Купить Золотой подарок за 100 звёзд" onclick="openGift('Золотой подарок', 100)" onkeypress="if(event.key==='Enter' || event.key===' ') openGift('Золотой подарок', 100)" class="gift-card bg-white dark:bg-gray-800 rounded-xl p-4 text-center shadow transition">
+      <img src="https://img.icons8.com/fluency/48/gift.png" alt="Золотой подарок" class="mx-auto mb-2 w-10 h-10" />
+      <h3 class="font-medium">Золотой</h3>
+      <p class="text-sm text-gray-500 dark:text-gray-400">100 ⭐</p>
+    </div>
+    <div tabindex="0" role="button" aria-pressed="false" aria-label="Купить Супер-подарок за 150 звёзд" onclick="openGift('Супер-подарок', 150)" onkeypress="if(event.key==='Enter' || event.key===' ') openGift('Супер-подарок', 150)" class="gift-card bg-yellow-100 dark:bg-yellow-300 rounded-xl p-4 text-center shadow col-span-2 transition">
+      <img src="https://img.icons8.com/external-flat-juicy-fish/48/external-gift-valentines-flat-flat-juicy-fish.png" alt="Супер-подарок" class="mx-auto mb-2 w-10 h-10" />
+      <h3 class="font-medium">Супер-подарок</h3>
+      <p class="text-sm text-yellow-800 dark:text-yellow-900">150 ⭐</p>
+    </div>
   </section>
 
-  <!-- Мои подарки -->
-  <section id="content-gifts" role="tabpanel" tabindex="0" aria-labelledby="tab-gifts" hidden class="text-center text-gray-600 dark:text-gray-400 min-h-[150px] flex flex-col items-center justify-center select-none">
-    <p class="mb-4 text-xl font-medium">Здесь пока нет подарков 🎁</p>
-    <img src="https://img.icons8.com/ios/100/8b5cf6/gift--v1.png" alt="Подарок" class="opacity-50" />
+  <section id="content-gifts" role="tabpanel" tabindex="0" aria-labelledby="tab-gifts" hidden class="p-4 text-center text-gray-500 dark:text-gray-400">
+    <p>Здесь пока нет подарков, но скоро появятся! 🎁</p>
   </section>
-</main>
 
-<!-- Нижняя навигация -->
-<nav class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around py-3 text-sm z-50 select-none">
-  <button class="text-purple-700 font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500 rounded">🎁 Открывай</button>
-  <button class="text-gray-500 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded">🎟 Выиграй NFT</button>
-  <button class="text-gray-500 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded">👥 Приглашай</button>
-</nav>
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 left-0 w-full bg-white dark:bg-gray-800 border-t border-gray-300 dark:border-gray-700 flex justify-around py-3 text-sm z-50 select-none" aria-label="Нижняя навигация">
+    <button class="text-purple-700 font-semibold focus:outline-none focus:ring-2 focus:ring-purple-500 rounded">🎁 Открывай</button>
+    <button class="text-gray-500 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded">🎟 Выиграй NFT</button>
+    <button class="text-gray-500 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 rounded">👥 Приглашай</button>
+  </nav>
 
-<!-- Модалка -->
-<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-text" class="fixed inset-0 flex items-center justify-center z-50 hidden" tabindex="-1">
-  <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl w-80 max-w-full text-center shadow-2xl relative transform scale-90 opacity-0 transition-all duration-300" id="modal-content">
-    <h2 id="modal-title" class="text-2xl font-bold mb-4 select-none"></h2>
-    <p id="modal-text" class="text-gray-600 dark:text-gray-300 mb-6 select-none"></p>
-    <button id="modal-close" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full shadow-md focus:outline-none focus:ring-4 focus:ring-purple-500 transition">Закрыть</button>
+  <!-- Модалка -->
+  <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-text" class="fixed inset-0 flex items-center justify-center z-50 hidden" tabindex="-1">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-72 text-center shadow-lg relative">
+      <h2 id="modal-title" class="text-lg font-bold mb-2 select-none"></h2>
+      <p id="modal-text" class="text-gray-500 dark:text-gray-400 mb-4 select-none"></p>
+      <button onclick="closeModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-purple-500">Закрыть</button>
+    </div>
   </div>
-</div>
 
-<script src="app.js"></script>
+  <script>
+    // Логика модалки
+    const modal = document.getElementById('modal');
+
+    function openGift(name, price) {
+      if (balance < price) {
+        showModal("Недостаточно звёзд", `У тебя всего ${balance} ⭐`);
+        return;
+      }
+
+      balance -= price;
+      saveBalance();
+      updateBalanceDisplay();
+
+      const prizes = ["10 ⭐", "50 ⭐", "ничего", "NFT", "Telegram Premium", "15 ⭐"];
+      const result = prizes[Math.floor(Math.random() * prizes.length)];
+
+      showModal(name, `Тебе выпало: ${result}`);
+      modal.focus();
+    }
+
+    function showModal(title, text) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-text').textContent = text;
+      modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+    }
+
+    // Закрытие модалки кликом вне и по Escape
+    modal.addEventListener('click', e => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+
+    // Табы
+    function initTabs() {
+      const tabs = document.querySelectorAll('[role="tab"]');
+      const panels = document.querySelectorAll('[role="tabpanel"]');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          activateTab(tab, tabs, panels);
+        });
+        tab.addEventListener('keydown', e => {
+          let index = Array.prototype.indexOf.call(tabs, tab);
+          if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            const nextIndex = (index + 1) % tabs.length;
+            tabs[nextIndex].focus();
+          } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            const prevIndex = (index - 1 + tabs.length) % tabs.length;
+            tabs[prevIndex].focus();
+          }
+        });
+      });
+    }
+
+    function activateTab(selectedTab, tabs, panels) {
+      tabs.forEach(tab => {
+        tab.classList.remove('active-tab');
+        tab.setAttribute('aria-selected', 'false');
+        tab.setAttribute('tabindex', '-1');
+      });
+      panels.forEach(panel => panel.hidden = true);
+
+      selectedTab.classList.add('active-tab');
+      selectedTab.setAttribute('aria-selected', 'true');
+      selectedTab.setAttribute('tabindex', '0');
+
+      const panelId = selectedTab.getAttribute('aria-controls');
+      document.getElementById(panelId).hidden = false;
+    }
+  </script>
 </body>
 </html>
