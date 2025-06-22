@@ -99,40 +99,73 @@
   </div>
 
   <!-- Модалка -->
-  <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-72 text-center">
-      <h2 id="modal-title" class="text-lg font-bold mb-2">Открытие подарка...</h2>
-      <p id="modal-text" class="text-gray-500 mb-4">Пожалуйста, подождите</p>
-      <button onclick="closeModal()" class="bg-purple-600 text-white px-4 py-2 rounded shadow">Закрыть</button>
-    </div>
+<div id="modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-72 text-center relative">
+    <h2 id="modal-title" class="text-lg font-bold mb-2">Открытие подарка...</h2>
+    
+    <!-- Подарок вращается -->
+    <img id="modal-gift" src="https://img.icons8.com/emoji/96/gift-emoji.png"
+         class="mx-auto w-16 h-16 animate-spin-slow mb-4" />
+    
+    <p id="modal-text" class="text-gray-500 mb-4">Жди результат...</p>
+    <button onclick="closeModal()" id="close-btn" class="bg-purple-600 text-white px-4 py-2 rounded shadow hidden">Закрыть</button>
   </div>
+</div>
 
-  <script>
-    function openGift(name, price) {
-      if (balance < price) {
-        showModal("Недостаточно звёзд", `У тебя всего ${balance} ⭐`);
-        return;
-      }
+ <script>
+  const balanceElem = document.getElementById("balance");
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modal-title");
+  const modalText = document.getElementById("modal-text");
+  const modalGift = document.getElementById("modal-gift");
+  const closeBtn = document.getElementById("close-btn");
 
-      balance -= price;
-      updateBalanceDisplay();
+  let balance = 100;
 
+  function updateBalanceDisplay() {
+    balanceElem.innerHTML = `${balance} ⭐`;
+  }
+
+  window.onload = updateBalanceDisplay;
+
+  function openGift(name, price) {
+    if (balance < price) {
+      showModal("Недостаточно звёзд", `У тебя всего ${balance} ⭐`, false);
+      return;
+    }
+
+    balance -= price;
+    updateBalanceDisplay();
+
+    showModal(name, "Подарок открывается...", true);
+
+    // Ждём 2.5 секунды, как будто он "выпадает"
+    setTimeout(() => {
       const prizes = ["10 ⭐", "50 ⭐", "ничего", "NFT", "Telegram Premium", "15 ⭐"];
       const result = prizes[Math.floor(Math.random() * prizes.length)];
 
-      showModal(name, `Тебе выпало: ${result}`);
-    }
+      modalTitle.textContent = "🎉 Поздравляем!";
+      modalText.textContent = `Тебе выпало: ${result}`;
+      modalGift.classList.remove("animate-spin-slow");
+      closeBtn.classList.remove("hidden");
+    }, 2500);
+  }
 
-    function showModal(title, text) {
-      document.getElementById("modal-title").textContent = title;
-      document.getElementById("modal-text").textContent = text;
-      document.getElementById("modal").classList.remove("hidden");
-    }
+  function showModal(title, text, spinning) {
+    modal.classList.remove("hidden");
+    modalTitle.textContent = title;
+    modalText.textContent = text;
 
-    function closeModal() {
-      document.getElementById("modal").classList.add("hidden");
+    if (spinning) {
+      modalGift.classList.add("animate-spin-slow");
+      closeBtn.classList.add("hidden");
+    } else {
+      modalGift.classList.remove("animate-spin-slow");
+      closeBtn.classList.remove("hidden");
     }
-  </script>
+  }
 
-</body>
-</html>
+  function closeModal() {
+    modal.classList.add("hidden");
+  }
+</script>
